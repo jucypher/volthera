@@ -6,11 +6,22 @@ public class Player : MonoBehaviour
     public int ID;
     public Position CurrentPosition;
 
-    public void Initialize(int id, string name, Position startPos)
+    private SpriteRenderer _renderer;
+
+    void Awake()
+    {
+        _renderer = GetComponent<SpriteRenderer>();
+    }
+
+    public void Initialize(int id, string name, Position startPos, Color color)
     {
         ID = id;
         PlayerName = name;
         CurrentPosition = startPos;
+
         transform.position = new Vector2(startPos.x, startPos.y);
+
+        if (_renderer != null)
+            _renderer.color = color;   // player színe
     }
 }

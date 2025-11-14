@@ -16,9 +16,9 @@ public class Tile : MonoBehaviour
         name = $"Tile ({x},{y})";
     }
 
-    public void SetSpecial(string species)
+    public void SetSpecial(Color color)
     {
         if (_renderer != null)
-            _renderer.color = Color.yellow; // special tile sárga
+            _renderer.color = color;   // <-- special mező színe
     }
 }
