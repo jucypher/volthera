@@ -8,6 +8,8 @@ public class Player : MonoBehaviour
 
     private SpriteRenderer _renderer;
 
+    public Color Color { get; private set; }
+
     void Awake()
     {
         _renderer = GetComponent<SpriteRenderer>();
@@ -18,6 +20,7 @@ public class Player : MonoBehaviour
         ID = id;
         PlayerName = name;
         CurrentPosition = startPos;
+        Color = color;
 
         transform.position = new Vector2(startPos.x, startPos.y);
 
