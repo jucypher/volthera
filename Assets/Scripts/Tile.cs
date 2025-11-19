@@ -4,7 +4,9 @@ public class Tile : MonoBehaviour
 {
     public Position GridPos;
     private SpriteRenderer _renderer;
-    private Color _baseColor; // eredeti szín (special vagy default)
+    private Color _baseColor;
+
+    public Player Owner { get; private set; } = null;
 
     void Awake()
     {
@@ -24,11 +26,10 @@ public class Tile : MonoBehaviour
         if (_renderer != null)
         {
             _renderer.color = color;
-            _baseColor = color; // tároljuk az alap színt
+            _baseColor = color;
         }
     }
 
-    // highlight: hozzáadja a player színét az alap színhez
     public void HighlightUnderPlayer(Color playerColor)
     {
         if (_renderer != null)
@@ -37,7 +38,7 @@ public class Tile : MonoBehaviour
                 (_baseColor.r + playerColor.r) / 2f,
                 (_baseColor.g + playerColor.g) / 2f,
                 (_baseColor.b + playerColor.b) / 2f,
-                1f // teljes opacity
+                1f
             );
             _renderer.color = faded;
         }
@@ -47,9 +48,18 @@ public class Tile : MonoBehaviour
     {
         if (_renderer != null)
         {
-            // Alapszín → a player halvány színe
             _renderer.color = new Color(color.r, color.g, color.b, 0.5f);
         }
     }
 
+    public void SetOwner(Player player)
+    {
+        Owner = player;
+        SetPlayerColor(player.Color);
+    }
+
+    public bool IsOccupied()
+    {
+        return Owner != null;
+    }
 }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 using System.Collections.Generic;
 
 public class GridManager : MonoBehaviour
@@ -8,6 +9,7 @@ public class GridManager : MonoBehaviour
 
     [SerializeField] private GameObject _tilePrefab;
     [SerializeField] private GameObject _playerPrefab;
+    [SerializeField] private UIManager uiManager;   // <<< IDE KAPJA A UI MANAGERT
 
     public int PlayerCount = 2;
 
@@ -15,7 +17,6 @@ public class GridManager : MonoBehaviour
     private Player[] players;
 
     private Color[] PlayerColors = { Color.red, Color.blue, Color.green, Color.magenta };
-
     public Player ActivePlayer { get; private set; }
 
     void Start()
@@ -23,7 +24,23 @@ public class GridManager : MonoBehaviour
         GenerateGrid();
         PlaceSpecialTilesForPlayers();
         PlacePlayersInCorners();
+
         ActivePlayer = players[0];
+
+        if (uiManager == null)
+            Debug.LogError("GridManager: uiManager reference is NOT set in Inspector!");
+
+        StartCoroutine(DelayedUIUpdate());
+    }
+
+    private IEnumerator DelayedUIUpdate()
+    {
+        yield return null;
+        if (uiManager != null)
+        {
+            uiManager.UpdateActivePlayer(ActivePlayer);
+            uiManager.UpdateScores(players);
+        }
     }
 
     void Update()
@@ -49,6 +66,95 @@ public class GridManager : MonoBehaviour
             }
         }
     }
+
+    public void MovePlayerTo(Player player, Position targetPos)
+    {
+        if (targetPos.x < 0 || targetPos.x >= BoardSize || targetPos.y < 0 || targetPos.y >= BoardSize)
+            return;
+
+        int dx = Mathf.Abs(targetPos.x - player.CurrentPosition.x);
+        int dy = Mathf.Abs(targetPos.y - player.CurrentPosition.y);
+
+        // Csak 1 tile mozgás
+        if (!((dx == 1 && dy == 0) || (dx == 0 && dy == 1)))
+        {
+            Debug.Log($"{player.PlayerName} cannot move diagonally or more than one tile!");
+            return;
+        }
+
+        Tile targetTile = Board[targetPos.x, targetPos.y];
+        if (targetTile == null) return;
+
+        // ===== 1. SAJÁT MEZŐ =====
+        if (targetTile.Owner == player)
+        {
+            player.CurrentPosition = targetPos;
+            player.transform.position = new Vector2(targetPos.x, targetPos.y);
+
+            Debug.Log($"{player.PlayerName} stepped on own tile. No points.");
+
+            NextPlayerTurn(player);
+            return;
+        }
+
+        // ===== 2. ÜRES MEZŐ =====
+        if (!targetTile.IsOccupied())
+        {
+            targetTile.SetOwner(player);
+            player.Score += 1;
+
+            Debug.Log($"{player.PlayerName} captured empty tile. Score: {player.Score}");
+
+            player.CurrentPosition = targetPos;
+            player.transform.position = new Vector2(targetPos.x, targetPos.y);
+
+            if (uiManager != null)
+                uiManager.UpdateScores(players);
+
+            NextPlayerTurn(player);
+            return;
+        }
+
+        // ===== 3. CSATA =====
+        Player defender = targetTile.Owner;
+        Player winner = Random.value < 0.5f ? player : defender;
+        Player loser = (winner == player ? defender : player);
+
+        targetTile.SetOwner(winner);
+
+        winner.Score += 1;
+        loser.Score = Mathf.Max(0, loser.Score - 1);
+
+        if (uiManager != null)
+            uiManager.UpdateScores(players);
+
+        Debug.Log($"{player.PlayerName} attacked {defender.PlayerName}!");
+        Debug.Log($"Winner: {winner.PlayerName} ({winner.Score})");
+        Debug.Log($"Loser: {loser.PlayerName} ({loser.Score})");
+
+        // Nyertes lép a tile-ra
+        if (winner == player)
+        {
+            player.CurrentPosition = targetPos;
+            player.transform.position = new Vector2(targetPos.x, targetPos.y);
+        }
+        // Vesztes nem mozdul
+
+        NextPlayerTurn(player);
+    }
+
+    // ===== NEXT PLAYER =====
+    private void NextPlayerTurn(Player current)
+    {
+        int index = System.Array.IndexOf(players, current);
+        int nextIndex = (index + 1) % PlayerCount;
+        ActivePlayer = players[nextIndex];
+
+        if (uiManager != null)
+            uiManager.UpdateActivePlayer(ActivePlayer);
+    }
+
+    // ===== GRID CREATION =====
     void GenerateGrid()
     {
         for (int x = 0; x < BoardSize; x++)
@@ -65,6 +171,7 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    // ===== SPECIAL TILES =====
     void PlaceSpecialTilesForPlayers()
     {
         System.Random random = new System.Random();
@@ -72,8 +179,8 @@ public class GridManager : MonoBehaviour
 
         for (int i = 0; i < PlayerCount; i++)
         {
-            Position pos;
             bool placed = false;
+            Position pos;
 
             while (!placed)
             {
@@ -81,8 +188,10 @@ public class GridManager : MonoBehaviour
                 int y = random.Next(BoardSize);
                 pos = new Position(x, y);
 
-                if ((x == 0 && y == 0) || (x == 0 && y == BoardSize - 1) ||
-                    (x == BoardSize - 1 && y == 0) || (x == BoardSize - 1 && y == BoardSize - 1))
+                if ((x == 0 && y == 0) ||
+                    (x == 0 && y == BoardSize - 1) ||
+                    (x == BoardSize - 1 && y == 0) ||
+                    (x == BoardSize - 1 && y == BoardSize - 1))
                     continue;
 
                 if (!occupied.Contains(pos))
@@ -95,6 +204,7 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    // ===== PLAYER SPAWN =====
     void PlacePlayersInCorners()
     {
         players = new Player[PlayerCount];
@@ -111,53 +221,16 @@ public class GridManager : MonoBehaviour
             GameObject pGO = Instantiate(_playerPrefab, new Vector2(corners[i].x, corners[i].y), Quaternion.identity);
             pGO.transform.parent = transform;
 
-            Player playerScript = pGO.GetComponent<Player>();
-            playerScript.Initialize(i + 1, "Player " + (i + 1), corners[i], PlayerColors[i]);
-            players[i] = playerScript;
+            Player player = pGO.GetComponent<Player>();
+            player.Initialize(i + 1, "Player " + (i + 1), corners[i], PlayerColors[i]);
+            players[i] = player;
 
-            // Highlight a kezdő pozíciót rögtön
             Tile startTile = Board[corners[i].x, corners[i].y];
             if (startTile != null)
-                startTile.HighlightUnderPlayer(PlayerColors[i]);
-        }
-    }
-
-    public void MovePlayerTo(Player player, Position targetPos)
-    {
-        // Határok ellenőrzése
-        if (targetPos.x < 0 || targetPos.x >= BoardSize || targetPos.y < 0 || targetPos.y >= BoardSize)
-            return;
-
-        // Csak egységnyi lépés megengedett (vízszintes vagy függőleges)
-        int dx = Mathf.Abs(targetPos.x - player.CurrentPosition.x);
-        int dy = Mathf.Abs(targetPos.y - player.CurrentPosition.y);
-
-        if ((dx == 1 && dy == 0) || (dx == 0 && dy == 1))
-        {
-            Tile targetTile = Board[targetPos.x, targetPos.y];
-
-            if (targetTile != null)
             {
-                // Resetelődik minden előző “player szín”
-                targetTile.SetPlayerColor(player.Color);
-
-                // Mozgatás
-                player.CurrentPosition = targetPos;
-                player.transform.position = new Vector2(targetPos.x, targetPos.y);
-
-                Debug.Log($"{player.PlayerName} moved to {targetPos.x},{targetPos.y}");
-
-                // Következő játékos
-                int nextIndex = (player.ID % PlayerCount);
-                ActivePlayer = players[nextIndex];
-                Debug.Log($"Next player: {ActivePlayer.PlayerName}");
+                startTile.SetOwner(player); // saját mező, nincs pont érte
+                startTile.HighlightUnderPlayer(PlayerColors[i]);
             }
         }
-
-        else
-        {
-            Debug.Log($"{player.PlayerName} cannot move diagonally or more than one tile!");
-        }
     }
-
 }

@@ -7,8 +7,9 @@ public class Player : MonoBehaviour
     public Position CurrentPosition;
 
     private SpriteRenderer _renderer;
-
     public Color Color { get; private set; }
+
+    public int Score { get; set; } = 0; // ← pontszám
 
     void Awake()
     {
@@ -25,6 +26,6 @@ public class Player : MonoBehaviour
         transform.position = new Vector2(startPos.x, startPos.y);
 
         if (_renderer != null)
-            _renderer.color = color;   // player színe
+            _renderer.color = color;
     }
 }
