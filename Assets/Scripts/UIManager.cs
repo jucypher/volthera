@@ -6,6 +6,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text activePlayerText;
     [SerializeField] private TMP_Text[] playerScoreTexts;
     [SerializeField] private TMP_Text winnerText;
+    [SerializeField] private GridManager gridManager;
 
     public void UpdateActivePlayer(Player currentPlayer)
     {
@@ -32,18 +33,15 @@ public class UIManager : MonoBehaviour
 
         int playerCount = players.Length;
 
-
         for (int i = 0; i < playerScoreTexts.Length; i++)
         {
             if (i < playerCount)
             {
-
                 playerScoreTexts[i].gameObject.SetActive(true);
                 playerScoreTexts[i].text = $"{players[i].PlayerName}: {players[i].Score}";
             }
             else
             {
-
                 playerScoreTexts[i].gameObject.SetActive(false);
             }
         }
@@ -59,4 +57,16 @@ public class UIManager : MonoBehaviour
         Debug.Log($"[UIManager] Winner displayed: {winner.PlayerName}");
     }
 
+    public void OnSaveButtonClicked()
+    {
+        if (gridManager != null)
+        {
+            gridManager.SaveGame();
+            Debug.Log("Save Game button clicked: game saved!");
+        }
+        else
+        {
+            Debug.LogError("UIManager.OnSaveButtonClicked: gridManager is not assigned!");
+        }
+    }
 }

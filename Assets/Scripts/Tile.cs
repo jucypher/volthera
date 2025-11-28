@@ -5,9 +5,11 @@ public class Tile : MonoBehaviour
     public Position GridPos;
     private SpriteRenderer _renderer;
     private Color _baseColor;
+    public Color BaseColor => _baseColor;
+
+    public Color CurrentColor { get; private set; }
 
     public Player Owner { get; private set; } = null;
-
 
     public Player SpecialOwner { get; private set; } = null;
     public Player SpecialCapturedBy { get; set; } = null;
@@ -18,6 +20,7 @@ public class Tile : MonoBehaviour
         _renderer = GetComponent<SpriteRenderer>();
         if (_renderer != null)
             _baseColor = _renderer.color;
+        CurrentColor = _renderer.color;
     }
 
     public void Initialize(int x, int y)
@@ -34,6 +37,7 @@ public class Tile : MonoBehaviour
         {
             _renderer.color = color;
             _baseColor = color;
+            CurrentColor = color;
         }
     }
 
@@ -47,7 +51,9 @@ public class Tile : MonoBehaviour
                 (_baseColor.b + playerColor.b) / 2f,
                 1f
             );
+
             _renderer.color = faded;
+            CurrentColor = faded;
         }
     }
 
@@ -55,7 +61,9 @@ public class Tile : MonoBehaviour
     {
         if (_renderer != null)
         {
-            _renderer.color = new Color(color.r, color.g, color.b, 0.5f);
+            Color c = new Color(color.r, color.g, color.b, 0.5f);
+            _renderer.color = c;
+            CurrentColor = c;
         }
     }
 

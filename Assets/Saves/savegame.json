@@ -1,0 +1,193 @@
+{
+    "players": [
+        {
+            "playerName": "Player 1",
+            "id": 1,
+            "posX": 0,
+            "posY": 2,
+            "score": 2,
+            "battleMultiplier": 1.0,
+            "hasBuff": false,
+            "canReceiveSpecialBuff": true,
+            "colorR": 1.0,
+            "colorG": 0.0,
+            "colorB": 0.0
+        },
+        {
+            "playerName": "Player 2",
+            "id": 2,
+            "posX": 3,
+            "posY": 1,
+            "score": 2,
+            "battleMultiplier": 1.0,
+            "hasBuff": false,
+            "canReceiveSpecialBuff": true,
+            "colorR": 0.0,
+            "colorG": 0.0,
+            "colorB": 1.0
+        }
+    ],
+    "tiles": [
+        {
+            "x": 0,
+            "y": 0,
+            "ownerName": "Player 1",
+            "specialOwnerName": "",
+            "specialCapturedBy": "",
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0
+        },
+        {
+            "x": 0,
+            "y": 1,
+            "ownerName": "Player 1",
+            "specialOwnerName": "",
+            "specialCapturedBy": "",
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0
+        },
+        {
+            "x": 0,
+            "y": 2,
+            "ownerName": "Player 1",
+            "specialOwnerName": "",
+            "specialCapturedBy": "",
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0
+        },
+        {
+            "x": 0,
+            "y": 3,
+            "ownerName": "",
+            "specialOwnerName": "",
+            "specialCapturedBy": "",
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0
+        },
+        {
+            "x": 1,
+            "y": 0,
+            "ownerName": "",
+            "specialOwnerName": "Player 1",
+            "specialCapturedBy": "",
+            "colorR": 1.0,
+            "colorG": 0.0,
+            "colorB": 0.0
+        },
+        {
+            "x": 1,
+            "y": 1,
+            "ownerName": "",
+            "specialOwnerName": "",
+            "specialCapturedBy": "",
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0
+        },
+        {
+            "x": 1,
+            "y": 2,
+            "ownerName": "",
+            "specialOwnerName": "",
+            "specialCapturedBy": "",
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0
+        },
+        {
+            "x": 1,
+            "y": 3,
+            "ownerName": "",
+            "specialOwnerName": "Player 2",
+            "specialCapturedBy": "",
+            "colorR": 0.0,
+            "colorG": 0.0,
+            "colorB": 1.0
+        },
+        {
+            "x": 2,
+            "y": 0,
+            "ownerName": "",
+            "specialOwnerName": "",
+            "specialCapturedBy": "",
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0
+        },
+        {
+            "x": 2,
+            "y": 1,
+            "ownerName": "",
+            "specialOwnerName": "",
+            "specialCapturedBy": "",
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0
+        },
+        {
+            "x": 2,
+            "y": 2,
+            "ownerName": "",
+            "specialOwnerName": "",
+            "specialCapturedBy": "",
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0
+        },
+        {
+            "x": 2,
+            "y": 3,
+            "ownerName": "",
+            "specialOwnerName": "",
+            "specialCapturedBy": "",
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0
+        },
+        {
+            "x": 3,
+            "y": 0,
+            "ownerName": "",
+            "specialOwnerName": "",
+            "specialCapturedBy": "",
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0
+        },
+        {
+            "x": 3,
+            "y": 1,
+            "ownerName": "Player 2",
+            "specialOwnerName": "",
+            "specialCapturedBy": "",
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0
+        },
+        {
+            "x": 3,
+            "y": 2,
+            "ownerName": "Player 2",
+            "specialOwnerName": "",
+            "specialCapturedBy": "",
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0
+        },
+        {
+            "x": 3,
+            "y": 3,
+            "ownerName": "Player 2",
+            "specialOwnerName": "",
+            "specialCapturedBy": "",
+            "colorR": 1.0,
+            "colorG": 1.0,
+            "colorB": 1.0
+        }
+    ],
+    "activePlayerName": "Player 1"
+}

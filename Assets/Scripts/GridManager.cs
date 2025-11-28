@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 public class GridManager : MonoBehaviour
 {
@@ -334,5 +335,68 @@ public class GridManager : MonoBehaviour
             }
         }
         return null;
+    }
+
+    public void SaveGame()
+    {
+        GameSave save = new GameSave();
+
+        save.players = new GameSave.PlayerData[players.Length];
+        for (int i = 0; i < players.Length; i++)
+        {
+            Player p = players[i];
+            GameSave.PlayerData pd = new GameSave.PlayerData
+            {
+                playerName = p.PlayerName,
+                id = p.ID,
+                posX = p.CurrentPosition.x,
+                posY = p.CurrentPosition.y,
+                score = p.Score,
+                battleMultiplier = p.BattleMultiplier,
+                hasBuff = p.HasBuff,
+                canReceiveSpecialBuff = p.CanReceiveSpecialBuff,
+                colorR = p.Color.r,
+                colorG = p.Color.g,
+                colorB = p.Color.b
+            };
+            save.players[i] = pd;
+        }
+
+        save.tiles = new GameSave.TileData[BoardSize * BoardSize];
+        int index = 0;
+        for (int x = 0; x < BoardSize; x++)
+        {
+            for (int y = 0; y < BoardSize; y++)
+            {
+                Tile t = Board[x, y];
+                GameSave.TileData td = new GameSave.TileData
+                {
+                    x = t.GridPos.x,
+                    y = t.GridPos.y,
+                    ownerName = t.Owner != null ? t.Owner.PlayerName : null,
+                    specialOwnerName = t.SpecialOwner != null ? t.SpecialOwner.PlayerName : null,
+                    specialCapturedBy = t.SpecialCapturedBy != null ? t.SpecialCapturedBy.PlayerName : null,
+
+                    colorR = t.BaseColor.r,
+                    colorG = t.BaseColor.g,
+                    colorB = t.BaseColor.b
+                };
+                save.tiles[index++] = td;
+            }
+        }
+
+
+        save.activePlayerName = ActivePlayer != null ? ActivePlayer.PlayerName : null;
+
+        string json = JsonUtility.ToJson(save, true);
+
+        string folder = Path.Combine(Application.dataPath, "Saves");
+        if (!Directory.Exists(folder))
+            Directory.CreateDirectory(folder);
+
+        string path = Path.Combine(folder, "savegame.json");
+        File.WriteAllText(path, json);
+
+        Debug.Log($"Game saved to {path}");
     }
 }
