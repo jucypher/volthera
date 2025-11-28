@@ -26,33 +26,26 @@ public class UIManager : MonoBehaviour
 
     public void UpdateScores(Player[] players)
     {
-        if (players == null)
-        {
-            Debug.LogError("UIManager.UpdateScores: players array is NULL!");
+        if (players == null || playerScoreTexts == null)
             return;
-        }
 
-        if (playerScoreTexts == null)
+        int playerCount = players.Length;
+
+
+        for (int i = 0; i < playerScoreTexts.Length; i++)
         {
-            Debug.LogError("UIManager.UpdateScores: playerScoreTexts array is NULL!");
-            return;
-        }
-
-        int len = Mathf.Min(players.Length, playerScoreTexts.Length);
-
-        for (int i = 0; i < len; i++)
-        {
-            var p = players[i];
-            var txt = playerScoreTexts[i];
-
-            if (txt != null)
+            if (i < playerCount)
             {
-                txt.text = $"{p.PlayerName}: {p.Score}";
+
+                playerScoreTexts[i].gameObject.SetActive(true);
+                playerScoreTexts[i].text = $"{players[i].PlayerName}: {players[i].Score}";
             }
             else
             {
-                Debug.LogError($"UIManager.UpdateScores: playerScoreTexts[{i}] is NULL!");
+
+                playerScoreTexts[i].gameObject.SetActive(false);
             }
         }
     }
+
 }
