@@ -270,67 +270,29 @@ public class GridManager : MonoBehaviour
     {
         if (!tile.IsSpecialTile) return;
 
-        Player originalOwner = tile.SpecialOwner;
+        Player owner = tile.SpecialOwner;
 
-        Debug.Log($"{visitor.PlayerName} stepped on special tile owned by {(originalOwner != null ? originalOwner.PlayerName : "none")}");
-
-
-        if (originalOwner == visitor)
+        if (owner == visitor)
         {
-
-            tile.SpecialCapturedBy = visitor;
-
-
-            if (visitor.CanReceiveSpecialBuff && !visitor.HasBuff)
+            if (tile.SpecialCapturedBy == null)
             {
                 visitor.BattleMultiplier = 1.3f;
                 visitor.HasBuff = true;
-                Debug.Log($"{visitor.PlayerName} captured their own special tile and gained 1.3× battle multiplier.");
+                Debug.Log($"{visitor.PlayerName} gained 1.3× boost from their own special tile!");
             }
-            else
-            {
-
-                if (!visitor.CanReceiveSpecialBuff)
-                    Debug.Log($"{visitor.PlayerName} stepped on their own special but had been preempted earlier — no buff.");
-                else if (visitor.HasBuff)
-                    Debug.Log($"[ALREADY BUFFED] {visitor.PlayerName} already has buff, stepping again does nothing.");
-            }
-
+            tile.SpecialCapturedBy = visitor;
             return;
         }
 
-        tile.SpecialCapturedBy = visitor;
-
-
-        if (originalOwner != null && originalOwner.CanReceiveSpecialBuff)
+        if (owner != null && tile.SpecialCapturedBy == null)
         {
-            originalOwner.CanReceiveSpecialBuff = false;
-            originalOwner.HasBuff = false;
-            originalOwner.BattleMultiplier = 1.0f;
-
-            Debug.Log($"{visitor.PlayerName} stepped on {originalOwner.PlayerName}'s special tile — {originalOwner.PlayerName} can no longer get the buff.");
-        }
-
-
-        Tile visitorsOwnSpecial = FindTileBySpecialOwner(visitor);
-        if (visitorsOwnSpecial != null && visitorsOwnSpecial.SpecialCapturedBy == originalOwner)
-        {
-
-            visitor.BattleMultiplier = 1.0f;
-            visitor.HasBuff = false;
-            visitor.CanReceiveSpecialBuff = false;
-
-            if (originalOwner != null)
-            {
-                originalOwner.BattleMultiplier = 1.0f;
-                originalOwner.HasBuff = false;
-                originalOwner.CanReceiveSpecialBuff = false;
-            }
-
-            Debug.Log($"Reciprocal special capture between {visitor.PlayerName} and {originalOwner.PlayerName}: battle multipliers set to 1.0.");
+            tile.SpecialCapturedBy = visitor;
+            owner.CanReceiveSpecialBuff = false;
+            owner.HasBuff = false;
+            owner.BattleMultiplier = 1.0f;
+            Debug.Log($"{visitor.PlayerName} stepped on {owner.PlayerName}'s special tile — {owner.PlayerName} lost the boost possibility.");
         }
     }
-
 
     private Tile FindTileBySpecialOwner(Player player)
     {
@@ -487,6 +449,7 @@ public class GridManager : MonoBehaviour
             if (!string.IsNullOrEmpty(t.ownerName) && playerMap.ContainsKey(t.ownerName))
                 tile.SetOwner(playerMap[t.ownerName]);
         }
+
 
 
         if (!string.IsNullOrEmpty(save.activePlayerName) && playerMap.ContainsKey(save.activePlayerName))
