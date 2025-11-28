@@ -7,7 +7,6 @@ public class MenuManager : MonoBehaviour
 {
     [SerializeField] private TMP_Dropdown playerCountDropdown;
 
-    private int selectedPlayerCount = 2;
 
     private void Start()
     {
