@@ -35,16 +35,6 @@ public class MenuManager : MonoBehaviour
     }
 
 
-    public void OnSaveClicked()
-    {
-        Debug.Log("Save clicked (currently does nothing)");
-    }
-
-    public void OnSaveAndExitClicked()
-    {
-        Debug.Log("Save & Exit clicked (currently does nothing)");
-    }
-
     public void OnContinueClicked()
     {
         Debug.Log("Continue clicked");
