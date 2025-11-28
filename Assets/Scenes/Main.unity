@@ -1099,7 +1099,7 @@ MonoBehaviour:
   _tilePrefab: {fileID: 8334632861684397440, guid: a8c3b0f292cbdd34c87bfe100a1de3ce, type: 3}
   _playerPrefab: {fileID: 6879315525074367545, guid: 8edf4af9f9d579a47844c2e23700da49, type: 3}
   uiManager: {fileID: 1266295366}
-  PlayerCount: 4
+  PlayerCount: 0
 --- !u!4 &1779738451
 Transform:
   m_ObjectHideFlags: 0

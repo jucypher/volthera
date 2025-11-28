@@ -21,6 +21,7 @@ public class GridManager : MonoBehaviour
 
     void Start()
     {
+        PlayerCount = MenuManager.PlayerCountSelected;
         GenerateGrid();
         PlacePlayersInCorners();
         PlaceSpecialTilesForPlayers();
