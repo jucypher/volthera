@@ -9,7 +9,7 @@ public class GridManager : MonoBehaviour
 
     [SerializeField] private GameObject _tilePrefab;
     [SerializeField] private GameObject _playerPrefab;
-    [SerializeField] private UIManager uiManager;   // <<< IDE KAPJA A UI MANAGERT
+    [SerializeField] private UIManager uiManager;
 
     public int PlayerCount = 2;
 
@@ -22,8 +22,8 @@ public class GridManager : MonoBehaviour
     void Start()
     {
         GenerateGrid();
-        PlaceSpecialTilesForPlayers();
         PlacePlayersInCorners();
+        PlaceSpecialTilesForPlayers();
 
         ActivePlayer = players[0];
 
@@ -75,7 +75,6 @@ public class GridManager : MonoBehaviour
         int dx = Mathf.Abs(targetPos.x - player.CurrentPosition.x);
         int dy = Mathf.Abs(targetPos.y - player.CurrentPosition.y);
 
-        // Csak 1 tile mozgás
         if (!((dx == 1 && dy == 0) || (dx == 0 && dy == 1)))
         {
             Debug.Log($"{player.PlayerName} cannot move diagonally or more than one tile!");
@@ -85,7 +84,8 @@ public class GridManager : MonoBehaviour
         Tile targetTile = Board[targetPos.x, targetPos.y];
         if (targetTile == null) return;
 
-        // ===== 1. SAJÁT MEZŐ =====
+        HandleSpecialTileVisit(player, targetTile);
+
         if (targetTile.Owner == player)
         {
             player.CurrentPosition = targetPos;
@@ -97,7 +97,6 @@ public class GridManager : MonoBehaviour
             return;
         }
 
-        // ===== 2. ÜRES MEZŐ =====
         if (!targetTile.IsOccupied())
         {
             targetTile.SetOwner(player);
@@ -115,9 +114,14 @@ public class GridManager : MonoBehaviour
             return;
         }
 
-        // ===== 3. CSATA =====
         Player defender = targetTile.Owner;
-        Player winner = Random.value < 0.5f ? player : defender;
+
+        float attackerChance = 0.5f * player.BattleMultiplier;
+        float defenderChance = 0.5f * defender.BattleMultiplier;
+        float total = attackerChance + defenderChance;
+        float roll = Random.value;
+
+        Player winner = (roll < attackerChance / total) ? player : defender;
         Player loser = (winner == player ? defender : player);
 
         targetTile.SetOwner(winner);
@@ -132,18 +136,17 @@ public class GridManager : MonoBehaviour
         Debug.Log($"Winner: {winner.PlayerName} ({winner.Score})");
         Debug.Log($"Loser: {loser.PlayerName} ({loser.Score})");
 
-        // Nyertes lép a tile-ra
+
         if (winner == player)
         {
             player.CurrentPosition = targetPos;
             player.transform.position = new Vector2(targetPos.x, targetPos.y);
         }
-        // Vesztes nem mozdul
+
 
         NextPlayerTurn(player);
     }
 
-    // ===== NEXT PLAYER =====
     private void NextPlayerTurn(Player current)
     {
         int index = System.Array.IndexOf(players, current);
@@ -154,7 +157,6 @@ public class GridManager : MonoBehaviour
             uiManager.UpdateActivePlayer(ActivePlayer);
     }
 
-    // ===== GRID CREATION =====
     void GenerateGrid()
     {
         for (int x = 0; x < BoardSize; x++)
@@ -171,7 +173,6 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    // ===== SPECIAL TILES =====
     void PlaceSpecialTilesForPlayers()
     {
         System.Random random = new System.Random();
@@ -188,6 +189,7 @@ public class GridManager : MonoBehaviour
                 int y = random.Next(BoardSize);
                 pos = new Position(x, y);
 
+
                 if ((x == 0 && y == 0) ||
                     (x == 0 && y == BoardSize - 1) ||
                     (x == BoardSize - 1 && y == 0) ||
@@ -196,7 +198,8 @@ public class GridManager : MonoBehaviour
 
                 if (!occupied.Contains(pos))
                 {
-                    Board[x, y].SetSpecial(PlayerColors[i]);
+
+                    Board[x, y].SetSpecial(PlayerColors[i], players[i]);
                     occupied.Add(pos);
                     placed = true;
                 }
@@ -204,7 +207,7 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    // ===== PLAYER SPAWN =====
+
     void PlacePlayersInCorners()
     {
         players = new Player[PlayerCount];
@@ -228,9 +231,91 @@ public class GridManager : MonoBehaviour
             Tile startTile = Board[corners[i].x, corners[i].y];
             if (startTile != null)
             {
-                startTile.SetOwner(player); // saját mező, nincs pont érte
+                startTile.SetOwner(player);
                 startTile.HighlightUnderPlayer(PlayerColors[i]);
             }
         }
+    }
+
+
+    private void HandleSpecialTileVisit(Player visitor, Tile tile)
+    {
+        if (!tile.IsSpecialTile) return;
+
+        Player originalOwner = tile.SpecialOwner;
+
+        Debug.Log($"{visitor.PlayerName} stepped on special tile owned by {(originalOwner != null ? originalOwner.PlayerName : "none")}");
+
+
+        if (originalOwner == visitor)
+        {
+
+            tile.SpecialCapturedBy = visitor;
+
+
+            if (visitor.CanReceiveSpecialBuff && !visitor.HasBuff)
+            {
+                visitor.BattleMultiplier = 1.3f;
+                visitor.HasBuff = true;
+                Debug.Log($"{visitor.PlayerName} captured their own special tile and gained 1.3× battle multiplier.");
+            }
+            else
+            {
+
+                if (!visitor.CanReceiveSpecialBuff)
+                    Debug.Log($"{visitor.PlayerName} stepped on their own special but had been preempted earlier — no buff.");
+                else if (visitor.HasBuff)
+                    Debug.Log($"[ALREADY BUFFED] {visitor.PlayerName} already has buff, stepping again does nothing.");
+            }
+
+            return;
+        }
+
+        tile.SpecialCapturedBy = visitor;
+
+
+        if (originalOwner != null && originalOwner.CanReceiveSpecialBuff)
+        {
+            originalOwner.CanReceiveSpecialBuff = false;
+            originalOwner.HasBuff = false;
+            originalOwner.BattleMultiplier = 1.0f;
+
+            Debug.Log($"{visitor.PlayerName} stepped on {originalOwner.PlayerName}'s special tile — {originalOwner.PlayerName} can no longer get the buff.");
+        }
+
+
+        Tile visitorsOwnSpecial = FindTileBySpecialOwner(visitor);
+        if (visitorsOwnSpecial != null && visitorsOwnSpecial.SpecialCapturedBy == originalOwner)
+        {
+
+            visitor.BattleMultiplier = 1.0f;
+            visitor.HasBuff = false;
+            visitor.CanReceiveSpecialBuff = false;
+
+            if (originalOwner != null)
+            {
+                originalOwner.BattleMultiplier = 1.0f;
+                originalOwner.HasBuff = false;
+                originalOwner.CanReceiveSpecialBuff = false;
+            }
+
+            Debug.Log($"Reciprocal special capture between {visitor.PlayerName} and {originalOwner.PlayerName}: battle multipliers set to 1.0.");
+        }
+    }
+
+
+    private Tile FindTileBySpecialOwner(Player player)
+    {
+        if (player == null) return null;
+        for (int x = 0; x < BoardSize; x++)
+        {
+            for (int y = 0; y < BoardSize; y++)
+            {
+                var t = Board[x, y];
+                if (t != null && t.IsSpecialTile && t.SpecialOwner == player)
+                    return t;
+            }
+        }
+        return null;
     }
 }

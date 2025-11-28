@@ -8,6 +8,11 @@ public class Tile : MonoBehaviour
 
     public Player Owner { get; private set; } = null;
 
+
+    public Player SpecialOwner { get; private set; } = null;
+    public Player SpecialCapturedBy { get; set; } = null;
+    public bool IsSpecialTile => SpecialOwner != null;
+
     void Awake()
     {
         _renderer = GetComponent<SpriteRenderer>();
@@ -21,8 +26,10 @@ public class Tile : MonoBehaviour
         name = $"Tile ({x},{y})";
     }
 
-    public void SetSpecial(Color color)
+    public void SetSpecial(Color color, Player owner)
     {
+        SpecialOwner = owner;
+
         if (_renderer != null)
         {
             _renderer.color = color;

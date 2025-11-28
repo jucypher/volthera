@@ -9,7 +9,12 @@ public class Player : MonoBehaviour
     private SpriteRenderer _renderer;
     public Color Color { get; private set; }
 
-    public int Score { get; set; } = 0; // ← pontszám
+    public int Score { get; set; } = 0;
+
+
+    public float BattleMultiplier = 1.0f;
+    public bool CanReceiveSpecialBuff = true;
+    public bool HasBuff = false;
 
     void Awake()
     {
