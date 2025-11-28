@@ -92,7 +92,6 @@ public class GridManager : MonoBehaviour
             player.transform.position = new Vector2(targetPos.x, targetPos.y);
 
             Debug.Log($"{player.PlayerName} stepped on own tile. No points.");
-
             NextPlayerTurn(player);
             return;
         }
@@ -101,8 +100,9 @@ public class GridManager : MonoBehaviour
         {
             targetTile.SetOwner(player);
             player.Score += 1;
-
             Debug.Log($"{player.PlayerName} captured empty tile. Score: {player.Score}");
+
+            CheckWinCondition(player);
 
             player.CurrentPosition = targetPos;
             player.transform.position = new Vector2(targetPos.x, targetPos.y);
@@ -136,19 +136,34 @@ public class GridManager : MonoBehaviour
         Debug.Log($"Winner: {winner.PlayerName} ({winner.Score})");
         Debug.Log($"Loser: {loser.PlayerName} ({loser.Score})");
 
-
+        CheckWinCondition(winner);
         if (winner == player)
         {
             player.CurrentPosition = targetPos;
             player.transform.position = new Vector2(targetPos.x, targetPos.y);
         }
 
-
         NextPlayerTurn(player);
+    }
+
+
+    private void CheckWinCondition(Player player)
+    {
+        if (player.Score >= 12)
+        {
+            Debug.Log($"{player.PlayerName} reached 12 points and WINS the game!");
+
+            ActivePlayer = null;
+
+            if (uiManager != null)
+                uiManager.SetWinner(player);
+        }
     }
 
     private void NextPlayerTurn(Player current)
     {
+        if (ActivePlayer == null) return;
+
         int index = System.Array.IndexOf(players, current);
         int nextIndex = (index + 1) % PlayerCount;
         ActivePlayer = players[nextIndex];
@@ -156,6 +171,7 @@ public class GridManager : MonoBehaviour
         if (uiManager != null)
             uiManager.UpdateActivePlayer(ActivePlayer);
     }
+
 
     void GenerateGrid()
     {

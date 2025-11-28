@@ -5,6 +5,7 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] private TMP_Text activePlayerText;
     [SerializeField] private TMP_Text[] playerScoreTexts;
+    [SerializeField] private TMP_Text winnerText;
 
     public void UpdateActivePlayer(Player currentPlayer)
     {
@@ -46,6 +47,16 @@ public class UIManager : MonoBehaviour
                 playerScoreTexts[i].gameObject.SetActive(false);
             }
         }
+    }
+
+    public void SetWinner(Player winner)
+    {
+        if (winnerText != null)
+        {
+            winnerText.gameObject.SetActive(true);
+            winnerText.text = $"{winner.PlayerName} WINS!";
+        }
+        Debug.Log($"[UIManager] Winner displayed: {winner.PlayerName}");
     }
 
 }
