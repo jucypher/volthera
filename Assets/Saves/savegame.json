@@ -3,11 +3,11 @@
         {
             "playerName": "Player 1",
             "id": 1,
-            "posX": 0,
-            "posY": 2,
-            "score": 2,
-            "battleMultiplier": 1.0,
-            "hasBuff": false,
+            "posX": 3,
+            "posY": 0,
+            "score": 9,
+            "battleMultiplier": 1.2999999523162842,
+            "hasBuff": true,
             "canReceiveSpecialBuff": true,
             "colorR": 1.0,
             "colorG": 0.0,
@@ -16,12 +16,12 @@
         {
             "playerName": "Player 2",
             "id": 2,
-            "posX": 3,
-            "posY": 1,
-            "score": 2,
+            "posX": 1,
+            "posY": 3,
+            "score": 5,
             "battleMultiplier": 1.0,
             "hasBuff": false,
-            "canReceiveSpecialBuff": true,
+            "canReceiveSpecialBuff": false,
             "colorR": 0.0,
             "colorG": 0.0,
             "colorB": 1.0
@@ -61,7 +61,7 @@
         {
             "x": 0,
             "y": 3,
-            "ownerName": "",
+            "ownerName": "Player 1",
             "specialOwnerName": "",
             "specialCapturedBy": "",
             "colorR": 1.0,
@@ -71,9 +71,9 @@
         {
             "x": 1,
             "y": 0,
-            "ownerName": "",
+            "ownerName": "Player 1",
             "specialOwnerName": "Player 1",
-            "specialCapturedBy": "",
+            "specialCapturedBy": "Player 1",
             "colorR": 1.0,
             "colorG": 0.0,
             "colorB": 0.0
@@ -81,7 +81,7 @@
         {
             "x": 1,
             "y": 1,
-            "ownerName": "",
+            "ownerName": "Player 1",
             "specialOwnerName": "",
             "specialCapturedBy": "",
             "colorR": 1.0,
@@ -91,7 +91,7 @@
         {
             "x": 1,
             "y": 2,
-            "ownerName": "",
+            "ownerName": "Player 1",
             "specialOwnerName": "",
             "specialCapturedBy": "",
             "colorR": 1.0,
@@ -101,9 +101,9 @@
         {
             "x": 1,
             "y": 3,
-            "ownerName": "",
+            "ownerName": "Player 2",
             "specialOwnerName": "Player 2",
-            "specialCapturedBy": "",
+            "specialCapturedBy": "Player 2",
             "colorR": 0.0,
             "colorG": 0.0,
             "colorB": 1.0
@@ -111,7 +111,7 @@
         {
             "x": 2,
             "y": 0,
-            "ownerName": "",
+            "ownerName": "Player 1",
             "specialOwnerName": "",
             "specialCapturedBy": "",
             "colorR": 1.0,
@@ -121,7 +121,7 @@
         {
             "x": 2,
             "y": 1,
-            "ownerName": "",
+            "ownerName": "Player 2",
             "specialOwnerName": "",
             "specialCapturedBy": "",
             "colorR": 1.0,
@@ -131,7 +131,7 @@
         {
             "x": 2,
             "y": 2,
-            "ownerName": "",
+            "ownerName": "Player 2",
             "specialOwnerName": "",
             "specialCapturedBy": "",
             "colorR": 1.0,
@@ -141,7 +141,7 @@
         {
             "x": 2,
             "y": 3,
-            "ownerName": "",
+            "ownerName": "Player 2",
             "specialOwnerName": "",
             "specialCapturedBy": "",
             "colorR": 1.0,
@@ -151,7 +151,7 @@
         {
             "x": 3,
             "y": 0,
-            "ownerName": "",
+            "ownerName": "Player 1",
             "specialOwnerName": "",
             "specialCapturedBy": "",
             "colorR": 1.0,

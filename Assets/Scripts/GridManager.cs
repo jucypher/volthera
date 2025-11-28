@@ -23,6 +23,15 @@ public class GridManager : MonoBehaviour
     void Start()
     {
         PlayerCount = MenuManager.PlayerCountSelected;
+
+        if (PlayerPrefs.GetInt("ShouldLoadGame", 0) == 1)
+        {
+            PlayerPrefs.SetInt("ShouldLoadGame", 0);
+            LoadSavedGame();
+            return;
+        }
+
+        // ÚJ JÁTÉK
         GenerateGrid();
         PlacePlayersInCorners();
         PlaceSpecialTilesForPlayers();
@@ -34,6 +43,7 @@ public class GridManager : MonoBehaviour
 
         StartCoroutine(DelayedUIUpdate());
     }
+
 
     private IEnumerator DelayedUIUpdate()
     {
@@ -399,4 +409,94 @@ public class GridManager : MonoBehaviour
 
         Debug.Log($"Game saved to {path}");
     }
+
+    private void LoadSavedGame()
+    {
+        string path = Path.Combine(Application.dataPath, "Saves/savegame.json");
+        if (!File.Exists(path))
+        {
+            Debug.LogError("SAVE FILE NOT FOUND! Starting new game instead.");
+            GenerateGrid();
+            PlacePlayersInCorners();
+            PlaceSpecialTilesForPlayers();
+            ActivePlayer = players[0];
+            StartCoroutine(DelayedUIUpdate());
+            return;
+        }
+
+        string json = File.ReadAllText(path);
+        GameSave save = JsonUtility.FromJson<GameSave>(json);
+
+        GenerateGrid();
+
+        players = new Player[save.players.Length];
+        PlayerCount = save.players.Length;
+
+        Dictionary<string, Player> playerMap = new();
+
+        for (int i = 0; i < save.players.Length; i++)
+        {
+            var p = save.players[i];
+            GameObject pGO = Instantiate(
+                _playerPrefab,
+                new Vector2(p.posX, p.posY),
+                Quaternion.identity
+            );
+
+            pGO.transform.parent = transform;
+
+            Player player = pGO.GetComponent<Player>();
+            Color color = new Color(p.colorR, p.colorG, p.colorB);
+
+            player.Initialize(
+                p.id,
+                p.playerName,
+                new Position(p.posX, p.posY),
+                color
+            );
+
+            player.Score = p.score;
+            player.BattleMultiplier = p.battleMultiplier;
+            player.HasBuff = p.hasBuff;
+            player.CanReceiveSpecialBuff = p.canReceiveSpecialBuff;
+
+            players[i] = player;
+            playerMap[p.playerName] = player;
+
+            Board[p.posX, p.posY].HighlightUnderPlayer(color);
+            Board[p.posX, p.posY].SetOwner(player);
+        }
+
+        foreach (var t in save.tiles)
+        {
+            Tile tile = Board[t.x, t.y];
+
+            tile.BaseColor = new Color(t.colorR, t.colorG, t.colorB);
+
+            Player specialOwner = null;
+            Player capturedBy = null;
+
+            if (!string.IsNullOrEmpty(t.specialOwnerName) && playerMap.ContainsKey(t.specialOwnerName))
+                specialOwner = playerMap[t.specialOwnerName];
+
+            if (!string.IsNullOrEmpty(t.specialCapturedBy) && playerMap.ContainsKey(t.specialCapturedBy))
+                capturedBy = playerMap[t.specialCapturedBy];
+
+            tile.RestoreSpecial(specialOwner, capturedBy);
+
+            if (!string.IsNullOrEmpty(t.ownerName) && playerMap.ContainsKey(t.ownerName))
+                tile.SetOwner(playerMap[t.ownerName]);
+        }
+
+
+        if (!string.IsNullOrEmpty(save.activePlayerName) && playerMap.ContainsKey(save.activePlayerName))
+            ActivePlayer = playerMap[save.activePlayerName];
+        else
+            ActivePlayer = players[0];
+
+        Debug.Log($"Loaded game. Active player: {ActivePlayer.PlayerName}");
+
+        StartCoroutine(DelayedUIUpdate());
+    }
+
 }

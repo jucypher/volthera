@@ -4,8 +4,20 @@ public class Tile : MonoBehaviour
 {
     public Position GridPos;
     private SpriteRenderer _renderer;
-    private Color _baseColor;
-    public Color BaseColor => _baseColor;
+    [SerializeField] private Color _baseColor;
+    public Color BaseColor
+    {
+        get => _baseColor;
+        set
+        {
+            _baseColor = value;
+            if (_renderer != null)
+            {
+                _renderer.color = _baseColor;
+                CurrentColor = _baseColor;
+            }
+        }
+    }
 
     public Color CurrentColor { get; private set; }
 
@@ -32,13 +44,7 @@ public class Tile : MonoBehaviour
     public void SetSpecial(Color color, Player owner)
     {
         SpecialOwner = owner;
-
-        if (_renderer != null)
-        {
-            _renderer.color = color;
-            _baseColor = color;
-            CurrentColor = color;
-        }
+        BaseColor = color;
     }
 
     public void HighlightUnderPlayer(Color playerColor)
@@ -77,4 +83,33 @@ public class Tile : MonoBehaviour
     {
         return Owner != null;
     }
+
+    public void ResetAppearanceToBase()
+    {
+        if (_renderer != null)
+        {
+            _renderer.color = _baseColor;
+            CurrentColor = _baseColor;
+        }
+    }
+
+    public void RestoreSpecial(Player owner, Player capturedBy = null)
+    {
+        SpecialOwner = owner;
+        SpecialCapturedBy = capturedBy;
+
+        if (capturedBy != null)
+        {
+            SetOwner(capturedBy);
+        }
+        else if (owner != null)
+        {
+            BaseColor = owner.Color;
+        }
+        else
+        {
+            ResetAppearanceToBase();
+        }
+    }
+
 }

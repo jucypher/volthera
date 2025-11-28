@@ -38,9 +38,11 @@ public class MenuManager : MonoBehaviour
     {
         Debug.Log("Continue clicked");
 
-        // Betöltjük a játék Scene-t anélkül, hogy resetelnénk
-        SceneManager.LoadScene("Main"); // ugyanaz a Scene, mint a Grid
+        PlayerPrefs.SetInt("ShouldLoadGame", 1);
+
+        SceneManager.LoadScene("Main");
     }
+
 
     public void OnExitClicked()
     {
