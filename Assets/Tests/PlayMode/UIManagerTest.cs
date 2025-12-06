@@ -29,7 +29,6 @@ public class UIManagerPlayModeTests
         popup = new GameObject("SavePopup");
         popup.SetActive(false);
 
-        // 🔥 privát mezők beállítása reflectionnel
         SetPrivate("activePlayerText", activeText);
         SetPrivate("roundText", roundText);
         SetPrivate("winScoreText", winScoreText);
@@ -51,9 +50,6 @@ public class UIManagerPlayModeTests
         Object.DestroyImmediate(uiGO);
     }
 
-    // =============================
-    // ✅ TESZTEK
-    // =============================
 
     [Test]
     public void DisplayWinScore_WritesCorrectText()

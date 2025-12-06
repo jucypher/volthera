@@ -12,7 +12,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private GameObject _playerPrefab;
     [SerializeField] private UIManager uiManager;
 
-    [SerializeField] private float boardWorldSize = 4f; // Teljes pálya mérete Unity egységben
+    [SerializeField] private float boardWorldSize = 4f;
 
     //private int BoardSize;
     private Tile[,] Board;
@@ -42,7 +42,6 @@ public class GridManager : MonoBehaviour
             return;
         }
 
-        // ✅ CSAK ÚJ JÁTÉKHOZ!
         PlayerCount = MenuManager.PlayerCountSelected;
         BoardSize = MenuManager.BoardSizeSelected;
 
@@ -124,7 +123,6 @@ public class GridManager : MonoBehaviour
         Tile targetTile = Board[targetPos.x, targetPos.y];
         if (targetTile == null) return;
 
-        // Ha boost tile, először adjuk a boostot
         if (targetTile.IsBoostTile)
         {
             targetTile.ApplyBoost(player);
@@ -132,7 +130,6 @@ public class GridManager : MonoBehaviour
                 uiManager.UpdateScores(players);
         }
 
-        // Ezután kezeljük a saját tulajdonú vagy üres tile-okat
         HandleSpecialTileVisit(player, targetTile);
 
         if (targetTile.Owner == player)
@@ -190,7 +187,7 @@ public class GridManager : MonoBehaviour
         if (winner == player)
         {
             player.CurrentPosition = targetPos;
-            player.transform.position = targetTile.transform.position; // <-- javítva
+            player.transform.position = targetTile.transform.position;
         }
 
         NextPlayerTurn(player);
@@ -221,7 +218,6 @@ public class GridManager : MonoBehaviour
         int nextIndex = (index + 1) % PlayerCount;
         ActivePlayer = players[nextIndex];
 
-        // Ha visszaértünk az első játékoshoz, nő a kör
         if (nextIndex == 0)
         {
             Round++;
@@ -305,14 +301,14 @@ public class GridManager : MonoBehaviour
         for (int i = 0; i < PlayerCount; i++)
         {
             Tile startTile = Board[corners[i].x, corners[i].y];
-            Vector2 playerWorldPos = startTile.transform.position; // <--- itt hozzuk létre
+            Vector2 playerWorldPos = startTile.transform.position;
 
             GameObject pGO = Instantiate(_playerPrefab, playerWorldPos, Quaternion.identity, transform);
             float playerScale = tileSize * 0.6f;
             pGO.transform.localScale = new Vector3(playerScale, playerScale, 1);
 
             Player player = pGO.GetComponent<Player>();
-            player.Initialize(i + 1, "Player " + (i + 1), corners[i], PlayerColors[i], playerWorldPos); // <-- használjuk a világpozíciót
+            player.Initialize(i + 1, "Player " + (i + 1), corners[i], PlayerColors[i], playerWorldPos);
             players[i] = player;
 
             startTile.SetOwner(player);
@@ -323,27 +319,22 @@ public class GridManager : MonoBehaviour
 
     private void HandleSpecialTileVisit(Player visitor, Tile tile)
     {
-        // csak special tile esetén érdekes
         if (!tile.IsSpecialTile) return;
 
         Player owner = tile.SpecialOwner;
         if (owner == null) return;
 
-        // ---------- SAJÁT SPECIAL TILE ----------
         if (owner == visitor)
         {
-            // csak akkor adjon buffot, ha még nincs
             if (!visitor.HasBuff)
             {
-                visitor.BattleMultiplier += 0.5f;   // vagy amennyi kell
+                visitor.BattleMultiplier += 0.5f;
                 visitor.HasBuff = true;
                 Debug.Log($"{visitor.PlayerName} gained boost from their own special tile!");
             }
             return;
         }
 
-        // ---------- MÁS SPECIAL TILE (CSAPDA) ----------
-        // ide akkor jutunk, ha owner != visitor
         if (visitor.HasBuff || visitor.BattleMultiplier > 1f)
         {
             visitor.HasBuff = false;
@@ -385,12 +376,10 @@ public class GridManager : MonoBehaviour
 
         GameSave save = new GameSave();
 
-        // ✅ alap játékadatok
         save.boardSize = BoardSize;
         save.round = Round;
         save.winScore = WinScore;
 
-        // ✅ játékosok mentése
         save.players = new GameSave.PlayerData[players.Length];
         for (int i = 0; i < players.Length; i++)
         {
@@ -412,7 +401,6 @@ public class GridManager : MonoBehaviour
             save.players[i] = pd;
         }
 
-        // ✅ tile-ok mentése (+ BOOST!)
         save.tiles = new GameSave.TileData[BoardSize * BoardSize];
         int index = 0;
 
@@ -435,7 +423,6 @@ public class GridManager : MonoBehaviour
                     colorG = t.BaseColor.g,
                     colorB = t.BaseColor.b,
 
-                    // ✅ BOOST TILE MENTÉS
                     isBoostTile = t.IsBoostTile,
                     boostUsed = t.BoostUsed
                 };
@@ -503,7 +490,6 @@ public class GridManager : MonoBehaviour
 
         Dictionary<string, Player> playerMap = new();
 
-        // ✅ PLAYER RESTORE
         for (int i = 0; i < save.players.Length; i++)
         {
             var p = save.players[i];
@@ -534,9 +520,6 @@ public class GridManager : MonoBehaviour
             Board[p.posX, p.posY].HighlightUnderPlayer(color);
         }
 
-        // ✅ TILE RESTORE + BOOST
-        // ✅ TILE RESTORE + BOOST
-        // ✅ TILE RESTORE + BOOST (HIBAMENTES)
         foreach (var t in save.tiles)
         {
             Tile tile = Board[t.x, t.y];
@@ -546,7 +529,7 @@ public class GridManager : MonoBehaviour
             if (t.isBoostTile)
                 tile.SetBoostTile();
 
-            tile.BoostUsed = t.boostUsed; // ✅ csak állapot, nem új boost
+            tile.BoostUsed = t.boostUsed;
 
             Player restoredSpecialOwner = null;
             Player restoredCapturedBy = null;
@@ -583,7 +566,6 @@ public class GridManager : MonoBehaviour
         System.Random random = new System.Random();
         HashSet<Position> occupied = new HashSet<Position>();
 
-        // Ne tegyük oda, ahol a special tile-ok vannak
         for (int x = 0; x < BoardSize; x++)
         {
             for (int y = 0; y < BoardSize; y++)
@@ -593,7 +575,6 @@ public class GridManager : MonoBehaviour
             }
         }
 
-        // Ne tegyük a játékosok kezdőpozíciójára
         foreach (var p in players)
             occupied.Add(p.CurrentPosition);
 
