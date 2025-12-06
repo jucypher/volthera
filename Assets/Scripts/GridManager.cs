@@ -207,6 +207,8 @@ public class GridManager : MonoBehaviour
 
             if (uiManager != null)
                 uiManager.SetWinner(player);
+
+            DeleteCurrentSaveFile();
         }
     }
 
@@ -610,6 +612,31 @@ public class GridManager : MonoBehaviour
             placed++;
         }
     }
+
+    private void DeleteCurrentSaveFile()
+    {
+        if (string.IsNullOrEmpty(MenuManager.SelectedSaveFile))
+        {
+            Debug.Log("Nincs aktív mentés, nincs mit törölni.");
+            return;
+        }
+
+        string folder = Path.Combine(Application.dataPath, "Saves");
+        string path = Path.Combine(folder, MenuManager.SelectedSaveFile + ".json");
+
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+            Debug.Log("✅ Nyertes játék mentése törölve: " + path);
+        }
+        else
+        {
+            Debug.LogWarning("Törlendő mentés nem található: " + path);
+        }
+
+        MenuManager.SelectedSaveFile = null;
+    }
+
 
 
 }
