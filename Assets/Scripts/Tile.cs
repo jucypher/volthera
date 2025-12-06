@@ -28,7 +28,8 @@ public class Tile : MonoBehaviour
     public bool IsSpecialTile => SpecialOwner != null;
 
     public bool IsBoostTile { get; private set; } = false;
-    public bool BoostUsed { get; private set; } = false;
+    public bool BoostUsed { get; set; } = false;
+
     private Color boostColor = new Color(1f, 1f, 0.6f, 1f); // halványsárga
 
     public void SetBoostTile()

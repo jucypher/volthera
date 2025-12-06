@@ -33,17 +33,20 @@ public class GridManager : MonoBehaviour
 
     void Start()
     {
-        PlayerCount = MenuManager.PlayerCountSelected;
-        BoardSize = MenuManager.BoardSizeSelected;
+        bool shouldLoad = PlayerPrefs.GetInt("ShouldLoadGame", 0) == 1;
 
-        Board = new Tile[BoardSize, BoardSize];
-
-        if (PlayerPrefs.GetInt("ShouldLoadGame", 0) == 1)
+        if (shouldLoad)
         {
             PlayerPrefs.SetInt("ShouldLoadGame", 0);
             LoadSavedGame();
             return;
         }
+
+        // ✅ CSAK ÚJ JÁTÉKHOZ!
+        PlayerCount = MenuManager.PlayerCountSelected;
+        BoardSize = MenuManager.BoardSizeSelected;
+
+        Board = new Tile[BoardSize, BoardSize];
 
         if (uiManager != null)
             uiManager.UpdateRound(Round);
@@ -52,7 +55,6 @@ public class GridManager : MonoBehaviour
         PlacePlayersInCorners();
         PlaceSpecialTilesForPlayers();
         PlaceBoostTiles();
-
 
         ActivePlayer = players[0];
 
@@ -65,8 +67,10 @@ public class GridManager : MonoBehaviour
 
         if (uiManager != null)
             uiManager.DisplayWinScore(WinScore);
-        Debug.Log($"Game started. Win condition: {WinScore} points.");
+
+        Debug.Log($"Game started NEW. Win condition: {WinScore} points.");
     }
+
 
 
     private IEnumerator DelayedUIUpdate()
@@ -455,20 +459,35 @@ public class GridManager : MonoBehaviour
 
     private void LoadSavedGame()
     {
-        string path = Path.Combine(Application.dataPath, "Saves/savegame.json");
+
+        foreach (Transform child in transform)
+        {
+            Destroy(child.gameObject);
+        }
+
+        if (string.IsNullOrEmpty(MenuManager.SelectedSaveFile))
+        {
+            Debug.LogError("No save file selected!");
+            return;
+        }
+
+        string folder = Path.Combine(Application.dataPath, "Saves");
+        string path = Path.Combine(folder, MenuManager.SelectedSaveFile + ".json");
+
         if (!File.Exists(path))
         {
-            Debug.LogError("SAVE FILE NOT FOUND! Starting new game instead.");
-            GenerateGrid();
-            PlacePlayersInCorners();
-            PlaceSpecialTilesForPlayers();
-            ActivePlayer = players[0];
-            StartCoroutine(DelayedUIUpdate());
+            Debug.LogError("SAVE FILE NOT FOUND: " + path);
             return;
         }
 
         string json = File.ReadAllText(path);
         GameSave save = JsonUtility.FromJson<GameSave>(json);
+
+        BoardSize = save.boardSize;
+        Round = save.round;
+        WinScore = save.winScore;
+
+        Board = new Tile[BoardSize, BoardSize];
 
         GenerateGrid();
 
@@ -477,20 +496,15 @@ public class GridManager : MonoBehaviour
 
         Dictionary<string, Player> playerMap = new();
 
+        // ✅ PLAYER RESTORE
         for (int i = 0; i < save.players.Length; i++)
         {
             var p = save.players[i];
-
             Vector2 worldPos = Board[p.posX, p.posY].transform.position;
 
-            GameObject pGO = Instantiate(
-                _playerPrefab,
-                worldPos,
-                Quaternion.identity,
-                transform
-            );
-
+            GameObject pGO = Instantiate(_playerPrefab, worldPos, Quaternion.identity, transform);
             Player player = pGO.GetComponent<Player>();
+
             Color color = new Color(p.colorR, p.colorG, p.colorB);
 
             player.Initialize(
@@ -509,27 +523,34 @@ public class GridManager : MonoBehaviour
             players[i] = player;
             playerMap[p.playerName] = player;
 
-            Board[p.posX, p.posY].HighlightUnderPlayer(color);
             Board[p.posX, p.posY].SetOwner(player);
+            Board[p.posX, p.posY].HighlightUnderPlayer(color);
         }
 
-
+        // ✅ TILE RESTORE + BOOST
+        // ✅ TILE RESTORE + BOOST
+        // ✅ TILE RESTORE + BOOST (HIBAMENTES)
         foreach (var t in save.tiles)
         {
             Tile tile = Board[t.x, t.y];
 
             tile.BaseColor = new Color(t.colorR, t.colorG, t.colorB);
 
-            Player specialOwner = null;
-            Player capturedBy = null;
+            if (t.isBoostTile)
+                tile.SetBoostTile();
+
+            tile.BoostUsed = t.boostUsed; // ✅ csak állapot, nem új boost
+
+            Player restoredSpecialOwner = null;
+            Player restoredCapturedBy = null;
 
             if (!string.IsNullOrEmpty(t.specialOwnerName) && playerMap.ContainsKey(t.specialOwnerName))
-                specialOwner = playerMap[t.specialOwnerName];
+                restoredSpecialOwner = playerMap[t.specialOwnerName];
 
             if (!string.IsNullOrEmpty(t.specialCapturedBy) && playerMap.ContainsKey(t.specialCapturedBy))
-                capturedBy = playerMap[t.specialCapturedBy];
+                restoredCapturedBy = playerMap[t.specialCapturedBy];
 
-            tile.RestoreSpecial(specialOwner, capturedBy);
+            tile.RestoreSpecial(restoredSpecialOwner, restoredCapturedBy);
 
             if (!string.IsNullOrEmpty(t.ownerName) && playerMap.ContainsKey(t.ownerName))
                 tile.SetOwner(playerMap[t.ownerName]);
@@ -537,14 +558,16 @@ public class GridManager : MonoBehaviour
 
 
 
-        if (!string.IsNullOrEmpty(save.activePlayerName) && playerMap.ContainsKey(save.activePlayerName))
-            ActivePlayer = playerMap[save.activePlayerName];
-        else
-            ActivePlayer = players[0];
+        ActivePlayer = playerMap.ContainsKey(save.activePlayerName)
+            ? playerMap[save.activePlayerName]
+            : players[0];
 
-        Debug.Log($"Loaded game. Active player: {ActivePlayer.PlayerName}");
+        uiManager.UpdateRound(Round);
+        uiManager.DisplayWinScore(WinScore);
 
         StartCoroutine(DelayedUIUpdate());
+
+        Debug.Log("✅ Game loaded from: " + path);
     }
 
     void PlaceBoostTiles()

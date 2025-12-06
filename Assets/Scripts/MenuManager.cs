@@ -14,6 +14,8 @@ public class MenuManager : MonoBehaviour
     public static int BoardSizeSelected = 4;
     public static int PlayerCountSelected = 2;
 
+    public static string SelectedSaveFile = null;
+
 
     private void Start()
     {
