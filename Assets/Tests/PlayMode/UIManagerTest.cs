@@ -14,16 +14,13 @@ public class UIManagerTests
     [SetUp]
     public void Setup()
     {
-        // Canvas létrehozása, mert TextMeshProUGUI-hoz kell
         var canvasGO = new GameObject("Canvas", typeof(Canvas));
         canvasGO.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
 
-        // UIManager létrehozása
         uiGO = new GameObject("UIManagerTest");
         uiGO.transform.SetParent(canvasGO.transform);
         uiManager = uiGO.AddComponent<UIManager>();
 
-        // ActivePlayerText
         var activeGO = new GameObject("ActivePlayerText");
         activeGO.transform.SetParent(uiGO.transform);
         activePlayerText = activeGO.AddComponent<TextMeshProUGUI>();
@@ -31,7 +28,6 @@ public class UIManagerTests
             .GetField("activePlayerText", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
             .SetValue(uiManager, activePlayerText);
 
-        // ScoreTexts
         scoreTexts = new TextMeshProUGUI[2];
         for (int i = 0; i < 2; i++)
         {
@@ -43,7 +39,6 @@ public class UIManagerTests
             .GetField("playerScoreTexts", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
             .SetValue(uiManager, scoreTexts);
 
-        // WinnerText
         var winnerGO = new GameObject("WinnerText");
         winnerGO.transform.SetParent(uiGO.transform);
         winnerText = winnerGO.AddComponent<TextMeshProUGUI>();

@@ -9,12 +9,10 @@ public class TileTests
     [SetUp]
     public void Setup()
     {
-        // Create GameObject és először add hozzá a SpriteRenderer-t,
-        // majd AddComponent<Tile>(), így Unity meghívja az Awake()-et automatikusan.
         tileGO = new GameObject("TileTestGO");
         tileGO.AddComponent<SpriteRenderer>();
         tile = tileGO.AddComponent<Tile>();
-        // NEM hívjuk kézzel tile.Awake() mert az private és Unity hívja automatikusan.
+
     }
 
     [TearDown]
@@ -48,8 +46,8 @@ public class TileTests
     [Test]
     public void HighlightUnderPlayer_Creates_FadedColor()
     {
-        tile.BaseColor = Color.red;   // r=1, g=0, b=0
-        Color playerColor = Color.blue; // r=0, g=0, b=1
+        tile.BaseColor = Color.red;
+        Color playerColor = Color.blue;
 
         tile.HighlightUnderPlayer(playerColor);
 
@@ -61,7 +59,6 @@ public class TileTests
     [Test]
     public void SetPlayerColor_Sets_FadedAlpha()
     {
-        // Ne Color.yellow, mert Unity sRGB miatt nem precíz!
         Color playerColor = new Color(1f, 1f, 0f, 1f);
 
         tile.SetPlayerColor(playerColor);
@@ -78,7 +75,6 @@ public class TileTests
         var playerGO = new GameObject("PlayerGO");
         var player = playerGO.AddComponent<Player>();
 
-        // Ne próbáljuk közvetlenül írni player.Color-ot, helyette használjuk Initialize.
         player.Initialize(1, "P", new Position { x = 0, y = 0 }, Color.cyan);
 
         tile.SetOwner(player);
