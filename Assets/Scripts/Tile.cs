@@ -27,6 +27,28 @@ public class Tile : MonoBehaviour
     public Player SpecialCapturedBy { get; set; } = null;
     public bool IsSpecialTile => SpecialOwner != null;
 
+    public bool IsBoostTile { get; private set; } = false;
+    public bool BoostUsed { get; private set; } = false;
+    private Color boostColor = new Color(1f, 1f, 0.6f, 1f); // halványsárga
+
+    public void SetBoostTile()
+    {
+        IsBoostTile = true;
+        BaseColor = boostColor;
+    }
+
+    public void ApplyBoost(Player player)
+    {
+        if (IsBoostTile && !BoostUsed)
+        {
+            player.BattleMultiplier += 0.3f; // kisebb boost mint special tile
+            BoostUsed = true;
+            Debug.Log($"{player.PlayerName} got boost from a boost tile!");
+            ResetAppearanceToBase(); // lehet visszaállítjuk alap színre
+        }
+    }
+
+
     void Awake()
     {
         _renderer = GetComponent<SpriteRenderer>();

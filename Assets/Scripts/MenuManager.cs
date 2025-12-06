@@ -5,10 +5,15 @@ using TMPro;
 public class MenuManager : MonoBehaviour
 {
     [SerializeField] private TMP_Dropdown playerCountDropdown;
-    [SerializeField] private TMP_Dropdown boardSizeDropdown; // Hozzáadva
+    [SerializeField] private TMP_Dropdown boardSizeDropdown;
+
+    [SerializeField] private TMP_InputField boostCountInput;
+
+    public static int BoostTileCount = 2;
 
     public static int BoardSizeSelected = 4;
     public static int PlayerCountSelected = 2;
+
 
     private void Start()
     {
@@ -28,6 +33,12 @@ public class MenuManager : MonoBehaviour
             boardSizeDropdown.AddOptions(new System.Collections.Generic.List<string> { "3", "4", "5", "6" });
             boardSizeDropdown.value = 1; // alapértelmezett 4x4
             boardSizeDropdown.onValueChanged.AddListener(OnBoardSizeChanged);
+        }
+
+        if (boostCountInput != null)
+        {
+            boostCountInput.text = BoostTileCount.ToString();
+            boostCountInput.onEndEdit.AddListener(OnBoostCountChanged);
         }
     }
 
@@ -57,5 +68,14 @@ public class MenuManager : MonoBehaviour
     public void OnExitClicked()
     {
         Application.Quit();
+    }
+
+    private void OnBoostCountChanged(string value)
+    {
+        if (int.TryParse(value, out int count))
+        {
+            BoostTileCount = Mathf.Max(0, count); // ne legyen negatív
+            Debug.Log($"Boost tiles selected: {BoostTileCount}");
+        }
     }
 }

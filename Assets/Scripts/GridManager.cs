@@ -44,6 +44,8 @@ public class GridManager : MonoBehaviour
         GenerateGrid();
         PlacePlayersInCorners();
         PlaceSpecialTilesForPlayers();
+        PlaceBoostTiles();
+
 
         ActivePlayer = players[0];
 
@@ -140,6 +142,12 @@ public class GridManager : MonoBehaviour
             NextPlayerTurn(player);
             return;
         }
+
+        if (targetTile.IsBoostTile)
+        {
+            targetTile.ApplyBoost(player);
+        }
+
 
 
         Player defender = targetTile.Owner;
@@ -487,5 +495,42 @@ public class GridManager : MonoBehaviour
 
         StartCoroutine(DelayedUIUpdate());
     }
+
+    void PlaceBoostTiles()
+    {
+        int boostCount = MenuManager.BoostTileCount;
+        System.Random random = new System.Random();
+        HashSet<Position> occupied = new HashSet<Position>();
+
+        // Ne tegyük oda, ahol a special tile-ok vannak
+        for (int x = 0; x < BoardSize; x++)
+        {
+            for (int y = 0; y < BoardSize; y++)
+            {
+                if (Board[x, y].IsSpecialTile)
+                    occupied.Add(Board[x, y].GridPos);
+            }
+        }
+
+        // Ne tegyük a játékosok kezdőpozíciójára
+        foreach (var p in players)
+            occupied.Add(p.CurrentPosition);
+
+        int placed = 0;
+        while (placed < boostCount)
+        {
+            int x = random.Next(BoardSize);
+            int y = random.Next(BoardSize);
+            Position pos = new Position(x, y);
+
+            if (occupied.Contains(pos))
+                continue;
+
+            Board[x, y].SetBoostTile();
+            occupied.Add(pos);
+            placed++;
+        }
+    }
+
 
 }
