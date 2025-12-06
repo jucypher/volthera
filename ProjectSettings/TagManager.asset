@@ -47,6 +47,9 @@ TagManager:
   - name: Player
     uniqueID: 829563157
     locked: 0
+  - name: Guide
+    uniqueID: 1779679043
+    locked: 0
   m_RenderingLayers:
   - Default
   - Player
