@@ -321,31 +321,36 @@ public class GridManager : MonoBehaviour
 
     private void HandleSpecialTileVisit(Player visitor, Tile tile)
     {
+        // csak special tile esetén érdekes
         if (!tile.IsSpecialTile) return;
 
         Player owner = tile.SpecialOwner;
+        if (owner == null) return;
 
+        // ---------- SAJÁT SPECIAL TILE ----------
         if (owner == visitor)
         {
-            if (tile.SpecialCapturedBy == null)
+            // csak akkor adjon buffot, ha még nincs
+            if (!visitor.HasBuff)
             {
-                visitor.BattleMultiplier += 0.5f;
+                visitor.BattleMultiplier += 0.5f;   // vagy amennyi kell
                 visitor.HasBuff = true;
-                Debug.Log($"{visitor.PlayerName} gained 1.3× boost from their own special tile!");
+                Debug.Log($"{visitor.PlayerName} gained boost from their own special tile!");
             }
-            tile.SpecialCapturedBy = visitor;
             return;
         }
 
-        if (owner != null && tile.SpecialCapturedBy == null)
+        // ---------- MÁS SPECIAL TILE (CSAPDA) ----------
+        // ide akkor jutunk, ha owner != visitor
+        if (visitor.HasBuff || visitor.BattleMultiplier > 1f)
         {
-            tile.SpecialCapturedBy = visitor;
-            owner.CanReceiveSpecialBuff = false;
-            owner.HasBuff = false;
-            owner.BattleMultiplier = 1.0f;
-            Debug.Log($"{visitor.PlayerName} stepped on {owner.PlayerName}'s special tile — {owner.PlayerName} lost the boost possibility.");
+            visitor.HasBuff = false;
+            visitor.BattleMultiplier = 1.0f;
+            Debug.Log($"{visitor.PlayerName} stepped on {owner.PlayerName}'s special tile and LOST all boosts!");
         }
     }
+
+
 
     private Tile FindTileBySpecialOwner(Player player)
     {
