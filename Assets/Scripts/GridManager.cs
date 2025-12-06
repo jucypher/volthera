@@ -24,6 +24,9 @@ public class GridManager : MonoBehaviour
     private Color[] PlayerColors = { Color.red, Color.blue, Color.green, Color.magenta };
     public Player ActivePlayer { get; private set; }
 
+    public int WinScore { get; private set; }
+    [SerializeField] private float WinScoreMultiplier = 0.7f;
+
     void Start()
     {
         PlayerCount = MenuManager.PlayerCountSelected;
@@ -48,6 +51,12 @@ public class GridManager : MonoBehaviour
             Debug.LogError("GridManager: uiManager reference is NOT set!");
 
         StartCoroutine(DelayedUIUpdate());
+
+        WinScore = Mathf.CeilToInt((BoardSize * BoardSize) / ((float)PlayerCount * WinScoreMultiplier));
+
+        if (uiManager != null)
+            uiManager.DisplayWinScore(WinScore);
+        Debug.Log($"Game started. Win condition: {WinScore} points.");
     }
 
 
@@ -168,9 +177,9 @@ public class GridManager : MonoBehaviour
 
     private void CheckWinCondition(Player player)
     {
-        if (player.Score >= 12)
+        if (player.Score >= WinScore)
         {
-            Debug.Log($"{player.PlayerName} reached 12 points and WINS the game!");
+            Debug.Log($"{player.PlayerName} reached {WinScore} points and WINS the game!");
 
             ActivePlayer = null;
 
@@ -178,6 +187,7 @@ public class GridManager : MonoBehaviour
                 uiManager.SetWinner(player);
         }
     }
+
 
     private void NextPlayerTurn(Player current)
     {

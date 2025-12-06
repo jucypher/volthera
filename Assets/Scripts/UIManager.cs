@@ -7,6 +7,14 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text[] playerScoreTexts;
     [SerializeField] private TMP_Text winnerText;
     [SerializeField] private GridManager gridManager;
+    [SerializeField] private TMP_Text winScoreText;
+
+    public void DisplayWinScore(int score)
+    {
+        if (winScoreText != null)
+            winScoreText.text = $"Win at: {score} points";
+    }
+
 
     public void UpdateActivePlayer(Player currentPlayer)
     {
