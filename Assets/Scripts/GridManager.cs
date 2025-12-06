@@ -6,23 +6,30 @@ using System.IO;
 
 public class GridManager : MonoBehaviour
 {
-    private const int BoardSize = 4;
+    private int BoardSize;
 
     [SerializeField] private GameObject _tilePrefab;
     [SerializeField] private GameObject _playerPrefab;
     [SerializeField] private UIManager uiManager;
 
-    public int PlayerCount = 2;
+    [SerializeField] private float boardWorldSize = 4f; // Teljes pálya mérete Unity egységben
 
-    private Tile[,] Board = new Tile[BoardSize, BoardSize];
+    //private int BoardSize;
+    private Tile[,] Board;
     private Player[] players;
 
+    public int PlayerCount = 2;
+
+    private float margin = 0.05f;
     private Color[] PlayerColors = { Color.red, Color.blue, Color.green, Color.magenta };
     public Player ActivePlayer { get; private set; }
 
     void Start()
     {
         PlayerCount = MenuManager.PlayerCountSelected;
+        BoardSize = MenuManager.BoardSizeSelected;
+
+        Board = new Tile[BoardSize, BoardSize];
 
         if (PlayerPrefs.GetInt("ShouldLoadGame", 0) == 1)
         {
@@ -31,7 +38,6 @@ public class GridManager : MonoBehaviour
             return;
         }
 
-        // ÚJ JÁTÉK
         GenerateGrid();
         PlacePlayersInCorners();
         PlaceSpecialTilesForPlayers();
@@ -39,7 +45,7 @@ public class GridManager : MonoBehaviour
         ActivePlayer = players[0];
 
         if (uiManager == null)
-            Debug.LogError("GridManager: uiManager reference is NOT set in Inspector!");
+            Debug.LogError("GridManager: uiManager reference is NOT set!");
 
         StartCoroutine(DelayedUIUpdate());
     }
@@ -101,7 +107,7 @@ public class GridManager : MonoBehaviour
         if (targetTile.Owner == player)
         {
             player.CurrentPosition = targetPos;
-            player.transform.position = new Vector2(targetPos.x, targetPos.y);
+            player.transform.position = targetTile.transform.position; // <-- javítva
 
             Debug.Log($"{player.PlayerName} stepped on own tile. No points.");
             NextPlayerTurn(player);
@@ -117,7 +123,7 @@ public class GridManager : MonoBehaviour
             CheckWinCondition(player);
 
             player.CurrentPosition = targetPos;
-            player.transform.position = new Vector2(targetPos.x, targetPos.y);
+            player.transform.position = targetTile.transform.position; // <-- javítva
 
             if (uiManager != null)
                 uiManager.UpdateScores(players);
@@ -125,6 +131,7 @@ public class GridManager : MonoBehaviour
             NextPlayerTurn(player);
             return;
         }
+
 
         Player defender = targetTile.Owner;
 
@@ -152,7 +159,7 @@ public class GridManager : MonoBehaviour
         if (winner == player)
         {
             player.CurrentPosition = targetPos;
-            player.transform.position = new Vector2(targetPos.x, targetPos.y);
+            player.transform.position = targetTile.transform.position; // <-- javítva
         }
 
         NextPlayerTurn(player);
@@ -187,12 +194,15 @@ public class GridManager : MonoBehaviour
 
     void GenerateGrid()
     {
+        float tileSize = (boardWorldSize / BoardSize) - margin;
+
         for (int x = 0; x < BoardSize; x++)
         {
             for (int y = 0; y < BoardSize; y++)
             {
-                GameObject t = Instantiate(_tilePrefab, new Vector2(x, y), Quaternion.identity);
-                t.transform.parent = transform;
+                Vector2 pos = new Vector2(x * (tileSize + margin), y * (tileSize + margin));
+                GameObject t = Instantiate(_tilePrefab, pos, Quaternion.identity, transform);
+                t.transform.localScale = new Vector3(tileSize, tileSize, 1);
 
                 Tile tile = t.GetComponent<Tile>();
                 tile.Initialize(x, y);
@@ -247,21 +257,23 @@ public class GridManager : MonoBehaviour
             _ => new Position[] { new Position(0, 0), new Position(0, BoardSize - 1), new Position(BoardSize - 1, 0), new Position(BoardSize - 1, BoardSize - 1) }
         };
 
+        float tileSize = (boardWorldSize / BoardSize) - margin;
+
         for (int i = 0; i < PlayerCount; i++)
         {
-            GameObject pGO = Instantiate(_playerPrefab, new Vector2(corners[i].x, corners[i].y), Quaternion.identity);
-            pGO.transform.parent = transform;
+            Tile startTile = Board[corners[i].x, corners[i].y];
+            Vector2 playerWorldPos = startTile.transform.position; // <--- itt hozzuk létre
+
+            GameObject pGO = Instantiate(_playerPrefab, playerWorldPos, Quaternion.identity, transform);
+            float playerScale = tileSize * 0.6f;
+            pGO.transform.localScale = new Vector3(playerScale, playerScale, 1);
 
             Player player = pGO.GetComponent<Player>();
-            player.Initialize(i + 1, "Player " + (i + 1), corners[i], PlayerColors[i]);
+            player.Initialize(i + 1, "Player " + (i + 1), corners[i], PlayerColors[i], playerWorldPos); // <-- használjuk a világpozíciót
             players[i] = player;
 
-            Tile startTile = Board[corners[i].x, corners[i].y];
-            if (startTile != null)
-            {
-                startTile.SetOwner(player);
-                startTile.HighlightUnderPlayer(PlayerColors[i]);
-            }
+            startTile.SetOwner(player);
+            startTile.HighlightUnderPlayer(PlayerColors[i]);
         }
     }
 
@@ -399,13 +411,15 @@ public class GridManager : MonoBehaviour
         for (int i = 0; i < save.players.Length; i++)
         {
             var p = save.players[i];
+
+            Vector2 worldPos = Board[p.posX, p.posY].transform.position;
+
             GameObject pGO = Instantiate(
                 _playerPrefab,
-                new Vector2(p.posX, p.posY),
-                Quaternion.identity
+                worldPos,
+                Quaternion.identity,
+                transform
             );
-
-            pGO.transform.parent = transform;
 
             Player player = pGO.GetComponent<Player>();
             Color color = new Color(p.colorR, p.colorG, p.colorB);
@@ -414,7 +428,8 @@ public class GridManager : MonoBehaviour
                 p.id,
                 p.playerName,
                 new Position(p.posX, p.posY),
-                color
+                color,
+                worldPos
             );
 
             player.Score = p.score;
@@ -428,6 +443,7 @@ public class GridManager : MonoBehaviour
             Board[p.posX, p.posY].HighlightUnderPlayer(color);
             Board[p.posX, p.posY].SetOwner(player);
         }
+
 
         foreach (var t in save.tiles)
         {

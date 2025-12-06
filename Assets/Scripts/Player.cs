@@ -21,16 +21,17 @@ public class Player : MonoBehaviour
         _renderer = GetComponent<SpriteRenderer>();
     }
 
-    public void Initialize(int id, string name, Position startPos, Color color)
+    public void Initialize(int id, string name, Position startPos, Color color, Vector2 worldPos)
     {
         ID = id;
         PlayerName = name;
         CurrentPosition = startPos;
         Color = color;
 
-        transform.position = new Vector2(startPos.x, startPos.y);
+        transform.position = worldPos;
 
         if (_renderer != null)
             _renderer.color = color;
     }
+
 }
