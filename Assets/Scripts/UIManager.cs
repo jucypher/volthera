@@ -9,10 +9,17 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GridManager gridManager;
     [SerializeField] private TMP_Text winScoreText;
 
+    [SerializeField] private TMP_Text roundText;
+
     public void DisplayWinScore(int score)
     {
         if (winScoreText != null)
             winScoreText.text = $"Win at: {score} points";
+    }
+    public void UpdateRound(int round)
+    {
+        if (roundText != null)
+            roundText.text = $"Round: {round}";
     }
 
 
@@ -46,7 +53,10 @@ public class UIManager : MonoBehaviour
             if (i < playerCount)
             {
                 playerScoreTexts[i].gameObject.SetActive(true);
-                playerScoreTexts[i].text = $"{players[i].PlayerName}: {players[i].Score}";
+                // Boost hozzáadása a kiíráshoz
+                float boost = players[i].BattleMultiplier;
+                string boostText = boost > 1f ? $" (Boost: {boost:0.0}×)" : "";
+                playerScoreTexts[i].text = $"{players[i].PlayerName}: {players[i].Score}{boostText}";
             }
             else
             {
@@ -54,6 +64,7 @@ public class UIManager : MonoBehaviour
             }
         }
     }
+
 
     public void SetWinner(Player winner)
     {

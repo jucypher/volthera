@@ -25,7 +25,11 @@ public class GridManager : MonoBehaviour
     public Player ActivePlayer { get; private set; }
 
     public int WinScore { get; private set; }
+
     [SerializeField] private float WinScoreMultiplier = 0.7f;
+
+    public int Round { get; private set; } = 1;
+
 
     void Start()
     {
@@ -40,6 +44,9 @@ public class GridManager : MonoBehaviour
             LoadSavedGame();
             return;
         }
+
+        if (uiManager != null)
+            uiManager.UpdateRound(Round);
 
         GenerateGrid();
         PlacePlayersInCorners();
@@ -113,12 +120,21 @@ public class GridManager : MonoBehaviour
         Tile targetTile = Board[targetPos.x, targetPos.y];
         if (targetTile == null) return;
 
+        // Ha boost tile, először adjuk a boostot
+        if (targetTile.IsBoostTile)
+        {
+            targetTile.ApplyBoost(player);
+            if (uiManager != null)
+                uiManager.UpdateScores(players);
+        }
+
+        // Ezután kezeljük a saját tulajdonú vagy üres tile-okat
         HandleSpecialTileVisit(player, targetTile);
 
         if (targetTile.Owner == player)
         {
             player.CurrentPosition = targetPos;
-            player.transform.position = targetTile.transform.position; // <-- javítva
+            player.transform.position = targetTile.transform.position;
 
             Debug.Log($"{player.PlayerName} stepped on own tile. No points.");
             NextPlayerTurn(player);
@@ -134,7 +150,7 @@ public class GridManager : MonoBehaviour
             CheckWinCondition(player);
 
             player.CurrentPosition = targetPos;
-            player.transform.position = targetTile.transform.position; // <-- javítva
+            player.transform.position = targetTile.transform.position;
 
             if (uiManager != null)
                 uiManager.UpdateScores(players);
@@ -142,12 +158,6 @@ public class GridManager : MonoBehaviour
             NextPlayerTurn(player);
             return;
         }
-
-        if (targetTile.IsBoostTile)
-        {
-            targetTile.ApplyBoost(player);
-        }
-
 
 
         Player defender = targetTile.Owner;
@@ -205,9 +215,18 @@ public class GridManager : MonoBehaviour
         int nextIndex = (index + 1) % PlayerCount;
         ActivePlayer = players[nextIndex];
 
+        // Ha visszaértünk az első játékoshoz, nő a kör
+        if (nextIndex == 0)
+        {
+            Round++;
+            if (uiManager != null)
+                uiManager.UpdateRound(Round);
+        }
+
         if (uiManager != null)
             uiManager.UpdateActivePlayer(ActivePlayer);
     }
+
 
 
     void GenerateGrid()
@@ -306,7 +325,7 @@ public class GridManager : MonoBehaviour
         {
             if (tile.SpecialCapturedBy == null)
             {
-                visitor.BattleMultiplier = 1.3f;
+                visitor.BattleMultiplier += 0.5f;
                 visitor.HasBuff = true;
                 Debug.Log($"{visitor.PlayerName} gained 1.3× boost from their own special tile!");
             }
