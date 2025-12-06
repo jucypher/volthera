@@ -444,17 +444,17 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "R\xF6vid \xFAtmutat\xF3:\r\n\r\nEgy k\xF6r\xF6kre osztott ter\xFCletfoglal\xF3
-    strat\xE9giai j\xE1t\xE9k 2-4 j\xE1t\xE9kos sz\xE1m\xE1ra.\r\nMozogj a 4\xD74-es
-    t\xE1bl\xE1n, foglalj el \xFCres mez\u0151ket, k\xFCzdj az ellenfelekkel, \xE9s
-    haszn\xE1ld ki a saj\xE1t k\xFCl\xF6nleges mez\u0151d adta harci b\xF3nuszt!\r\n\r\nMinden
-    l\xE9p\xE9s sz\xE1m\xEDt:\r\n\u2981\t\xDCres mez\u0151 \u2192 +1 pont\r\n\u2981\tSaj\xE1t
-    mez\u0151 \u2192 nincs v\xE1ltoz\xE1s\r\n\u2981\tEllenf\xE9l mez\u0151je \u2192
-    csata d\xF6nt, a vesztes pontot vesz\xEDthet, a nyertes kaphat\r\n\u2981\tSaj\xE1t
-    special tile \u2192 harci b\xF3nusz\r\n\u2981\tM\xE1s special tile \u2192 elveszed
-    a b\xF3nuszt t\u0151le\r\nA c\xE9l egyszer\u0171: \xE9rd el els\u0151k\xE9nt
-    a 10 pontot, \xE9s urald Volther\xE1t!\r\n\r\nA j\xE1t\xE9k b\xE1rmikor elmenthet\u0151
-    \xE9s k\xE9s\u0151bb folytathat\xF3.\r\n"
+  m_text: "A Volthera: The Dominion egy k\xF6r\xF6kre osztott ter\xFCletfoglal\xF3
+    strat\xE9giai j\xE1t\xE9k 2-4 j\xE1t\xE9kos sz\xE1m\xE1ra.\nMozogj a t\xE1bl\xE1n,
+    foglalj el mez\u0151ket, k\xFCzdj az ellenfelekkel \xE9s haszn\xE1ld a\r\nsaj\xE1t
+    k\xFCl\xF6nleges mez\u0151d harci b\xF3nusz\xE1t!\r\n\r\nMinden l\xE9p\xE9s sz\xE1m\xEDt:\n\r\n-
+    \xDCres mez\u0151 \u2192 +1 pont \xE9s a mez\u0151 a ti\xE9d\r\n- Saj\xE1t mez\u0151d
+    \u2192 nincs v\xE1ltoz\xE1s\r\n- Ellenf\xE9l mez\u0151je \u2192 csata d\xF6nt;
+    a vesztes 1 pontot vesz\xEDthet, a gy\u0151ztes kaphat\r\n- Boost tile \u2192
+    harci b\xF3nusz\r\n- Saj\xE1t special tile \u2192 tart\xF3s harci b\xF3nusz\r\n\r\nA
+    c\xE9l: \xE9rd el els\u0151k\xE9nt a gy\u0151zelmi pontsz\xE1mot \xE9s urald
+    Volther\xE1t!\r\n\r\nA j\xE1t\xE9k b\xE1rmikor elmenthet\u0151 n\xE9vvel \xE9s
+    k\xE9s\u0151bb folytathat\xF3.\r\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -1644,8 +1644,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.0000039339066, y: -0.0000039339066}
-  m_SizeDelta: {x: 1500, y: 700}
+  m_AnchoredPosition: {x: -0.0000039339066, y: -18}
+  m_SizeDelta: {x: 1500, y: 750}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!210 &1243255117
 SortingGroup:
