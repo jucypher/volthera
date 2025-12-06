@@ -66,7 +66,7 @@ public class MenuManager : MonoBehaviour
         PlayerPrefs.SetInt("ShouldLoadGame", 1);
         SceneManager.LoadScene("Main");
     }
-
+ 
     public void OnExitClicked()
     {
         Application.Quit();

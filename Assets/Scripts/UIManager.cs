@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
 
 public class UIManager : MonoBehaviour
@@ -118,5 +119,11 @@ public class UIManager : MonoBehaviour
     {
         if (savePopup != null)
             savePopup.SetActive(false);
+    }
+
+    public void OnBackToMenuClicked()
+    {
+        PlayerPrefs.SetInt("ShouldLoadGame", 0); // új játék indítása, ha visszalép
+        SceneManager.LoadScene("MainMenu");
     }
 }
