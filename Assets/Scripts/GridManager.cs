@@ -358,10 +358,28 @@ public class GridManager : MonoBehaviour
         return null;
     }
 
-    public void SaveGame()
+    public void SaveGame(string fileName)
     {
+        if (string.IsNullOrWhiteSpace(fileName))
+        {
+            Debug.LogError("Save failed: empty filename!");
+            return;
+        }
+
+        if (ActivePlayer == null)
+        {
+            Debug.LogWarning("Game already finished, saving disabled.");
+            return;
+        }
+
         GameSave save = new GameSave();
 
+        // ✅ alap játékadatok
+        save.boardSize = BoardSize;
+        save.round = Round;
+        save.winScore = WinScore;
+
+        // ✅ játékosok mentése
         save.players = new GameSave.PlayerData[players.Length];
         for (int i = 0; i < players.Length; i++)
         {
@@ -383,43 +401,57 @@ public class GridManager : MonoBehaviour
             save.players[i] = pd;
         }
 
+        // ✅ tile-ok mentése (+ BOOST!)
         save.tiles = new GameSave.TileData[BoardSize * BoardSize];
         int index = 0;
+
         for (int x = 0; x < BoardSize; x++)
         {
             for (int y = 0; y < BoardSize; y++)
             {
                 Tile t = Board[x, y];
+
                 GameSave.TileData td = new GameSave.TileData
                 {
                     x = t.GridPos.x,
                     y = t.GridPos.y,
+
                     ownerName = t.Owner != null ? t.Owner.PlayerName : null,
                     specialOwnerName = t.SpecialOwner != null ? t.SpecialOwner.PlayerName : null,
                     specialCapturedBy = t.SpecialCapturedBy != null ? t.SpecialCapturedBy.PlayerName : null,
 
                     colorR = t.BaseColor.r,
                     colorG = t.BaseColor.g,
-                    colorB = t.BaseColor.b
+                    colorB = t.BaseColor.b,
+
+                    // ✅ BOOST TILE MENTÉS
+                    isBoostTile = t.IsBoostTile,
+                    boostUsed = t.BoostUsed
                 };
+
                 save.tiles[index++] = td;
             }
         }
-
 
         save.activePlayerName = ActivePlayer != null ? ActivePlayer.PlayerName : null;
 
         string json = JsonUtility.ToJson(save, true);
 
         string folder = Path.Combine(Application.dataPath, "Saves");
+
         if (!Directory.Exists(folder))
             Directory.CreateDirectory(folder);
 
-        string path = Path.Combine(folder, "savegame.json");
+        string path = Path.Combine(folder, fileName + ".json");
+
+        if (File.Exists(path))
+            Debug.LogWarning("Save already exists and will be overwritten!");
+
         File.WriteAllText(path, json);
 
-        Debug.Log($"Game saved to {path}");
+        Debug.Log($"✅ Game saved to: {path}");
     }
+
 
     private void LoadSavedGame()
     {
