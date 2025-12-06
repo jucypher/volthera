@@ -820,6 +820,8 @@ MonoBehaviour:
   gridManager: {fileID: 0}
   winScoreText: {fileID: 0}
   roundText: {fileID: 0}
+  savePopup: {fileID: 0}
+  saveNameInput: {fileID: 0}
 --- !u!1 &474382245
 GameObject:
   m_ObjectHideFlags: 0
@@ -1037,7 +1039,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1266295366}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: OnSaveButtonClicked
+        m_MethodName: OnConfirmSaveClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1735,6 +1737,8 @@ MonoBehaviour:
   gridManager: {fileID: 1779738450}
   winScoreText: {fileID: 1566168082}
   roundText: {fileID: 1847062615}
+  savePopup: {fileID: 480977287}
+  saveNameInput: {fileID: 2146650210}
 --- !u!224 &1266295367
 RectTransform:
   m_ObjectHideFlags: 0
